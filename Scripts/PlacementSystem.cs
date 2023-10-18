@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class PlacementSystem : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField] 
+    private GameObject mouseIndicator;
+    [SerializeField]
+    private InputManager inputManager;
+
+    private void Update()
     {
-        
+        Vector3 mousePosition=inputManager.GetSelectedMapPosition();
+        mouseIndicator.transform.position = mousePosition;
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
 }
