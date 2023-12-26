@@ -4,15 +4,14 @@ using UnityEngine;
 
 public class ClearCounter : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    [SerializeField]private KitchenObjectSO kitchenObjectSO;
+    [SerializeField]private Transform counterTopPoint;
+    public void Interact()
     {
-        
-    }
+        Debug.Log("Interacted!");
+        Transform kitchenObjectTransfrom=Instantiate(kitchenObjectSO.prefab,counterTopPoint);
+        kitchenObjectTransfrom.localPosition=Vector3.zero;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
+        Debug.Log(kitchenObjectTransfrom.GetComponent<KitchenObject>().GetKitchenObjectSO().objectName);
     }
 }

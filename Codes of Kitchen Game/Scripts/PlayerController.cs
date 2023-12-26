@@ -1,13 +1,52 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Diagnostics;
 
 public class PlayerController : MonoBehaviour
 {
+    private static PlayerController instance;
+    public static PlayerController Instance{get;private set;}
+    public static PlayerController instanceField;
+    public static PlayerController GetInstanceField()
+    {
+        return instanceField;
+    }
+    public static void SetInstanceField(PlayerController instanceField)
+    {
+        PlayerController.instanceField=instanceField;
+    }
+    public event EventHandler<OnSelectedCounterChangedEventArgs> OnSelectedCounterChanged;
+    public class OnSelectedCounterChangedEventArgs:EventArgs
+    {
+        public ClearCounter selectedCounter;
+    }
     [SerializeField] private float MovementSpeed=6.5f;
     [SerializeField] private GameInput gameInput;
+    [SerializeField] private LayerMask countersLayerMask;
     private bool isWalking_01;
+    private ClearCounter selectedCounter;
     private Vector3 lastInteractedDirection;
+
+    private void Awake()
+    {
+        if(Instance!=null){Debug.LogError("There is more than Player Instance!");}
+        Instance=this;
+    }
+
+    private void Start()
+    {
+        gameInput.OnInteractAction+=GameInput_OnInteractAction;
+    }     
+
+    private void GameInput_OnInteractAction(object sender,System.EventArgs e)
+    {
+        if (selectedCounter!=null)
+        {
+            selectedCounter.Interact();
+        }
+    }      
     void Update()
     {
         HandleMovement();
@@ -20,20 +59,35 @@ public class PlayerController : MonoBehaviour
 
     private void HandleInteractions()
     {
-        Vector2 inputVector=gameInput.GetMovementVectorNormalized();
-        Vector3 moveDirection=new Vector3(inputVector.x,0f,inputVector.y);
+    Vector2 inputVector = gameInput.GetMovementVectorNormalized();
+    Vector3 moveDirection = new Vector3(inputVector.x, 0f, inputVector.y);
 
-        if (moveDirection!=Vector3.zero)
+    if (moveDirection != Vector3.zero)
+    {
+        lastInteractedDirection = moveDirection;
+    }
+
+    float interactDistance = 2f;
+    RaycastHit raycastHit;
+
+    // Önceki seçilen counter ile şu anki counter aynı değilse
+    if (Physics.Raycast(transform.position, lastInteractedDirection, out raycastHit, interactDistance, countersLayerMask))
+    {
+        if (raycastHit.transform.TryGetComponent(out ClearCounter clearCounter))
         {
-            lastInteractedDirection=moveDirection;
-        }
-        float interactDistance=2f;
-        RaycastHit raycastHit;
-        if ( Physics.Raycast(transform.position,moveDirection,out raycastHit,interactDistance))
-        {
-            Debug.Log(raycastHit.transform);
+            if (clearCounter != selectedCounter)
+            {
+                SetSelectedCounter(clearCounter);
+            }
         }
     }
+    // Önceki seçilen counter ile şu anki counter aynı değilse
+    else if (selectedCounter != null)
+    {
+        SetSelectedCounter(null);
+    }
+    }
+
     private void HandleMovement()
     {
         Vector2 inputVector=gameInput.GetMovementVectorNormalized();
@@ -79,5 +133,12 @@ public class PlayerController : MonoBehaviour
 
         float rotationSpeed=10f;
         transform.forward=Vector3.Slerp(transform.forward, moveDirection,Time.deltaTime*rotationSpeed);
+    }
+
+    private void SetSelectedCounter(ClearCounter selectedCounter)
+    {
+        this.selectedCounter=selectedCounter;
+
+        OnSelectedCounterChanged?.Invoke(this,new OnSelectedCounterChangedEventArgs{selectedCounter=selectedCounter});
     }
 }
