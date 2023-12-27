@@ -2,16 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ClearCounter : MonoBehaviour
+public class ClearCounter : BaseCounter
 {
     [SerializeField]private KitchenObjectSO kitchenObjectSO;
-    [SerializeField]private Transform counterTopPoint;
-    public void Interact()
+    public override void Interact(PlayerController player)
     {
-        Debug.Log("Interacted!");
-        Transform kitchenObjectTransfrom=Instantiate(kitchenObjectSO.prefab,counterTopPoint);
-        kitchenObjectTransfrom.localPosition=Vector3.zero;
-
-        Debug.Log(kitchenObjectTransfrom.GetComponent<KitchenObject>().GetKitchenObjectSO().objectName);
     }
 }
