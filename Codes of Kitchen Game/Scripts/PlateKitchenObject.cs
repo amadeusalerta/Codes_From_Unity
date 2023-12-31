@@ -43,4 +43,9 @@ public class PlateKitchenObject : KitchenObject
     {
         throw new NotImplementedException();
     }
+
+    public List<KitchenObjectSO> GetKitchenObjectSOList()
+    {
+        return kitchenObjectSOList;
+    }
 }
